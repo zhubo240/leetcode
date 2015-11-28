@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -17,47 +18,43 @@ public:
 	int lengthOfLongestSubstring(string s) {
 		Elem tmp = { -1, 0 };
 		vector<Elem> table(26, tmp);
+		map<char, Elem> newTable;
 
-		int maxb, maxe;
+
+		int b = 0, e = 0;
+		int longest = 0;
 		for (unsigned i = 0; i < s.size(); ++i) {
-			int idx = s[i] - 'a';
-			if (table[idx].freq == 0) {
-				table[idx].freq = 1;
-				table[idx].pos = i;
-			}
-			if (table[idx].freq == 1) {
-				//record the b & e
-				int b, e;
-				b = idx;
-				e = idx;
-				for (int i = 0; i < 26; i++) {
-					if (table[i].freq == 1) {
-						b = b < table[i].pos ? b : table[i].pos;
-						e = e > table[i].pos ? e : table[i].pos;
-					}
-				}
-				if (e - b > maxe - maxb) {
-					e = maxe;
-					b = maxb;
-				}
+//			cout << i << endl;
+			e = i;
 
-				//update the table
-				for (int i = 0; i < 26; i++) {
-					int pos = table[idx].pos;
-
-					if (table[i].freq == 1) {
-						if (table[i].pos <= pos) {
-							table[i].pos = -1;
-							table[i].freq = 0;
+			if(newTable.find(s[i]) == newTable.end()){
+				Elem elem = {i, 1};
+				newTable[s[i]] = elem;
+			}else{
+				//exist
+				if(newTable[s[i]].freq < 1){
+					newTable[s[i]].freq = 1;
+					newTable[s[i]].pos = i;
+				}else{
+					b = newTable[s[i]].pos + 1;
+					//update table
+					for(unsigned i = 0; i < newTable.size(); i++){
+						if(newTable[i].pos < b && newTable[i].freq > 0){
+							newTable[i].freq = 0;
+							newTable[i].pos = -1;
 						}
 					}
-				}
-				table[idx].pos = i;
-				table[idx].freq = 1;
 
+					newTable[s[i]].freq = 1;
+					newTable[s[i]].pos = i;
+				}
 			}
+			//cout << b << ", " << e << endl;
+
+			if( e + 1 - b > longest) longest = e+1 - b;
 		}
-		return maxe-maxb;
+
+		return longest;
 	}
 
 private:
@@ -70,7 +67,7 @@ private:
 int main(int argc, char **argv) {
 	Solution s;
 	int res;
-	res = s.lengthOfLongestSubstring("abcabcbb");
+	res = s.lengthOfLongestSubstring("qthepvzhouiriqnqjpgwabpwwoqebcguxnankzwztgsdwgwixcexfwvemliqpomnemcolypfgikfognnktkqrhueteukvgzb");
 	cout << res << endl;
 	std::cout << "main over" << std::endl;
 	return 0;
